@@ -22,10 +22,10 @@ module.exports.postUsers = (req, res, next) => {
     about: user.about,
     avatar: user.avatar,
     _id: user._id}))
-    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
+  .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
   // .catch((err) => {
   //   if (err.name === "ValidationError") {
-  //     next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+  //     next(new BadRequestError('Переданы некорректные данные при создании пользователя' ));
   //   } else if (err.name === "InternalServerError") {
   //     next(new InternalServerError('Ошибка по умолчанию'));
   //   } else {
@@ -36,36 +36,36 @@ module.exports.postUsers = (req, res, next) => {
 
 //GET /users/:userId - возвращает пользователя по _id
 module.exports.findUsersById = (req, res, next) => {
-  // User.findById(req.params.id)
-  //   .then(user => res.send(user))
-  //   .catch(
-  //    // () => res.status(400).send({ message: 'Произошла ошибка' }),
-  //     () => res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
-  //     );
-    // .catch((err)=> {
-    //   if(err.name === 'NotFoundError') {
-    //     next(new NotFoundError('Пользователь по указанному _id не найден'))
-    //   } else if (err.name === "InternalServerError") {
-    //     next(new InternalServerError('Ошибка по умолчанию'));
-    //   } else {
-    //     next(err);
-    //   }
-    // });
-    User.findById(req.params.userId)
+  User.findById(req.params.id)
+    // .then(user => res.send(user))
+    // // .catch(
+    // //   () => res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
+    // //   );
+    // // .catch((err)=> {
+    // //   if(err.name === 'CastError') {
+    // //     next(new NotFoundError('Пользователь по указанному _id не найден'))
+    // //   } else if (err.name === "InternalServerError") {
+    // //     next(new InternalServerError('Ошибка по умолчанию'));
+    // //   } else {
+    // //     next(err);
+    // //   }
+    // // });
+    // .catch((err) => {
+    //   console.log(`Произошла неизвестная ошибка ${err.name}: ${err.message}`);
+    // })
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError('Пользователь по указанному _id не найден'));
+        throw next(new BadRequestError('Указанный пользователь не найден'));
       }
       return res.send({ data: user });
     })
-    .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
-    // .catch((err) => {
-    //   if (err.name === 'CastError') {
-    //     next(new BadRequestError('Переданы некорректные данные'));
-    //   } else {
-    //     next(err);
-    //   }
-    // });
+    .catch((err)=> {
+        if(err.name === 'CastError') {
+          next(new NotFoundError('Пользователь по указанному _id не найден'))
+        } else {
+          next(err);
+        }
+      });
 };
 
 // PATCH /users/me — обновляет профиль
@@ -78,15 +78,15 @@ module.exports.patchUsers = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, {name, about}, {new: true})
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-      } else if(err.name === 'NotFoundError') {
-        next(new NotFoundError('Пользователь по указанному _id не найден'))
-      } else if (err.name === "InternalServerError") {
-        next(new InternalServerError('Ошибка по умолчанию'));
-      } else {
-        next(err);
-      }
+      // if (err.name === "ValidationError") {
+      //   next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      // } else if(err.name === 'NotFoundError') {
+      //   next(new NotFoundError('Пользователь по указанному _id не найден'))
+      // } else if (err.name === "InternalServerError") {
+      //   next(new InternalServerError('Ошибка по умолчанию'));
+      // } else {
+      //   next(err);
+      // }
     });
 };
 
