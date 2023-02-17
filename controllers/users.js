@@ -38,15 +38,19 @@ module.exports.postUsers = (req, res, next) => {
 module.exports.findUsersById = (req, res, next) => {
   User.findById(req.params.id)
     .then(user => res.send(user))
-    .catch((err)=> {
-      if(err.name === 'NotFoundError') {
-        next(new NotFoundError('Пользователь по указанному _id не найден'))
-      } else if (err.name === "InternalServerError") {
-        next(new InternalServerError('Ошибка по умолчанию'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(
+     // () => res.status(400).send({ message: 'Произошла ошибка' }),
+      () => res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
+      );
+    // .catch((err)=> {
+    //   if(err.name === 'NotFoundError') {
+    //     next(new NotFoundError('Пользователь по указанному _id не найден'))
+    //   } else if (err.name === "InternalServerError") {
+    //     next(new InternalServerError('Ошибка по умолчанию'));
+    //   } else {
+    //     next(err);
+    //   }
+    // });
 };
 
 // PATCH /users/me — обновляет профиль
