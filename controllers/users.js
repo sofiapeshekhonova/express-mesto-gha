@@ -14,13 +14,12 @@ module.exports.getUsers = (req, res) => {
 
 //POST /users — создаёт пользователя
 module.exports.postUsers = (req, res) => {
-  const {name,about,avatar} = req.body // получим из объекта запроса данные
-  User.create({name,about,avatar}, req.user._id)
+  const {name,about,avatar, } = req.body // получим из объекта запроса данные
+  User.create({name,about,avatar})
   .then(user => res.send({
     name: user.name,
     about: user.about,
-    avatar: user.avatar,
-    _id: req.user._id }))
+    avatar: user.avatar}))
   .catch((err) => {
     if (err.name == "BadRequestError") {
       next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
@@ -35,7 +34,7 @@ module.exports.postUsers = (req, res) => {
 //GET /users/:userId - возвращает пользователя по _id
 module.exports.findUsersById = (req, res) => {
   User.findById(req.params.id)
-    .then(userId => res.send({ data: userId }))
+    .then(user => res.send(user))
     .catch((err)=> {
       if(err.name = 'NotFoundError') {
         next(new NotFoundError('Пользователь по указанному _id не найден'))
