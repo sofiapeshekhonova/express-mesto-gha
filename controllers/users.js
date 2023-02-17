@@ -12,7 +12,6 @@ module.exports.getUsers = (req, res) => {
   })
 };
 
-
 //POST /users — создаёт пользователя
 module.exports.postUsers = (req, res, next) => {
   const {name,about,avatar, } = req.body // получим из объекта запроса данные
@@ -22,46 +21,35 @@ module.exports.postUsers = (req, res, next) => {
     about: user.about,
     avatar: user.avatar,
     _id: user._id}))
-  .catch(() => res.status(400).send({ message: 'Произошла ошибка' }));
-  // .catch((err) => {
-  //   if (err.name === "ValidationError") {
-  //     next(new BadRequestError('Переданы некорректные данные при создании пользователя' ));
-  //   } else if (err.name === "InternalServerError") {
-  //     next(new InternalServerError('Ошибка по умолчанию'));
-  //   } else {
-  //     next(err);
-  //   }
-  // })
+  .catch((err) => {
+    if (err.name === "ValidationError") {
+      return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
+      //next(new BadRequestError('Переданы некорректные данные при создании пользователя' ));
+    } else if (err.name === "InternalServerError") {
+      return res.status(500).send({ message: 'Ошибка по умолчанию' })
+     // next(new InternalServerError('Ошибка по умолчанию'));
+    } else {
+      next(err);
+    }
+  })
 };
 
 //GET /users/:userId - возвращает пользователя по _id
 module.exports.findUsersById = (req, res, next) => {
   User.findById(req.params.id)
-    // .then(user => res.send(user))
-    // // .catch(
-    // //   () => res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
-    // //   );
-    // // .catch((err)=> {
-    // //   if(err.name === 'CastError') {
-    // //     next(new NotFoundError('Пользователь по указанному _id не найден'))
-    // //   } else if (err.name === "InternalServerError") {
-    // //     next(new InternalServerError('Ошибка по умолчанию'));
-    // //   } else {
-    // //     next(err);
-    // //   }
-    // // });
-    // .catch((err) => {
-    //   console.log(`Произошла неизвестная ошибка ${err.name}: ${err.message}`);
-    // })
     .then((user) => {
       if (!user) {
-        throw next(new NotFoundError('Указанный пользователь не найден'));
+        //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
+        //throw res.status(404).send({ message: 'Передан несуществующий в БД id' })
+        {throw new NotFoundError('извини, Я потерялся')}
       }
       return res.send({ data: user });
     })
+    //.catch(() => res.status(400).send({ message: 'Переданы некорректные данные' }));
     .catch((err)=> {
         if(err.name === 'CastError') {
-          next(new BadRequestError('Переданы некорректные данные'))
+          //next (new BadRequestError('Получение пользователя с некорректным id'))
+          return res.status(400).send({ message: 'Передан некорректный id' })
         } else {
           next(err);
         }
