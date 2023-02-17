@@ -22,15 +22,22 @@ module.exports.postUsers = (req, res, next) => {
     about: user.about,
     avatar: user.avatar,
     _id: user._id}))
+  // .catch((err) => {
+  //   if (err.name === "ValidationError") {
+  //     next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+  //   } else if (err.name === "InternalServerError") {
+  //     next(new InternalServerError('Ошибка по умолчанию'));
+  //   } else {
+  //     next(err);
+  //   }
+  // })
   .catch((err) => {
-    if (err.name === "ValidationError") {
-      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-    } else if (err.name === "InternalServerError") {
-      next(new InternalServerError('Ошибка по умолчанию'));
+    if (err.name === 'CastError') {
+      next(new InternalServerError('Переданы некорректные данные'));
     } else {
       next(err);
     }
-  })
+  });
 };
 
 //GET /users/:userId - возвращает пользователя по _id
