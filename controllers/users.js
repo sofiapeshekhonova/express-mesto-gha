@@ -55,13 +55,13 @@ module.exports.findUsersById = (req, res, next) => {
     // })
     .then((user) => {
       if (!user) {
-        throw next(new BadRequestError('Указанный пользователь не найден'));
+        throw next(new NotFoundError('Указанный пользователь не найден'));
       }
       return res.send({ data: user });
     })
     .catch((err)=> {
         if(err.name === 'CastError') {
-          next(new NotFoundError('Пользователь по указанному _id не найден'))
+          next(new BadRequestError('Переданы некорректные данные'))
         } else {
           next(err);
         }
