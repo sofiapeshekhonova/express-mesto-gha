@@ -1,8 +1,6 @@
-const router = require('express').Router();
-const User = require('../models/user');
-const BadRequestError = require('../errors/BadRequestError')
-const InternalServerError = require('../errors/InternalServerError')
-const NotFoundError = require('../errors/NotFoundError')
+const express = require('express');
+const router = express.Router();
+
 const {getUsers, postUsers, findUsersById, patchUsers, patchUsersAvatar} = require('../controllers/users')
 
 router.get('/users', getUsers);
