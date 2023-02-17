@@ -3,9 +3,9 @@ const BadRequestError = require('../errors/BadRequestError');
 const InternalServerError = require('../errors/InternalServerError');
 const NotFoundError = require('../errors/NotFoundError');
 
-module.exports.createCard = (req, res) => {
-  console.log(req.user._id); // _id станет доступен
-};
+// module.exports.createCard = (req, res) => {
+//   console.log(req.user._id); // _id станет доступен
+// };
 
 //GET /cards — возвращает все карточки
 module.exports.getCards = (req, res) => {

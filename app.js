@@ -22,9 +22,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 //app.use('/users', require('./routes/users'));
-app.use('/', routes);
+//app.use('/', routes);
 
-app.use((req, res, next) => {
+app.use('/', routes, (req, res, next) => {
   req.user = {
     _id: '63ef1ba9f92d535c71085ff3'
   };
