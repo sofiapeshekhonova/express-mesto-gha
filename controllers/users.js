@@ -18,7 +18,7 @@ module.exports.postUsers = (req, res) => {
   User.create({name,about,avatar})
   .then(user => res.send({
     name: user.name,
-   
+    about: user.about,
     avatar: user.avatar,
     _id: user._id}))
   .catch((err) => {
