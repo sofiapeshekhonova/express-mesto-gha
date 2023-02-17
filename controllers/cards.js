@@ -8,13 +8,13 @@ const NotFoundError = require('../errors/NotFoundError');
 // };
 
 //GET /cards — возвращает все карточки
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
   .then(cards => res.send({ data: cards }))
   .catch((err) => {
-    if (err.name == "BadRequestError") {
+    if (err.name === "ValidationError") {
       next(new BadRequestError('Переданы некорректные данные при создании карточки'));
-    } else if (err.name == "InternalServerError") {
+    } else if (err.name === "InternalServerError") {
       next(new InternalServerError('Ошибка по умолчанию'));
     } else {
       next(err);
@@ -23,14 +23,14 @@ module.exports.getCards = (req, res) => {
 };
 
 //POST /cards — создаёт карточку
-module.exports.postCards = (req, res) => {
+module.exports.postCards = (req, res, next) => {
   const {name,link} = req.body
   Card.create({ name, link, owner: req.user._id })
   .then(cards => res.send({ data: cards }))
   .catch((err) => {
-    if (err.name == "BadRequestError") {
+    if (err.name === "ValidationError") {
       next(new BadRequestError('Переданы некорректные данные при создании карточки'));
-    } else if (err.name == "InternalServerError") {
+    } else if (err.name === "InternalServerError") {
       next(new InternalServerError('Ошибка по умолчанию'));
     } else {
       next(err);
@@ -39,11 +39,11 @@ module.exports.postCards = (req, res) => {
 };
 
 //DELETE /cards/:cardId — удаляет карточку по идентификатору
-module.exports.deleteCards= (req, res) => {
+module.exports.deleteCards= (req, res, next) => {
   Card.findById(req.params.id)
   .then(cards => res.send({ data: cards }))
   .catch((err) => {
-    if(err.name = 'NotFoundError') {
+    if(err.name === 'NotFoundError') {
       next(new NotFoundError('Карточка с указанным _id не найдена.'))
     } else {
       next(err);
@@ -52,7 +52,7 @@ module.exports.deleteCards= (req, res) => {
 };
 
 // PUT /cards/:cardId/likes — поставить лайк карточке
-module.exports.putLikes= (req, res) => {
+module.exports.putLikes= (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -60,11 +60,11 @@ module.exports.putLikes= (req, res) => {
   )
   .then(cards => res.send({ data: cards }))
   .catch((err) => {
-    if (err.name == "BadRequestError") {
+    if (err.name === "ValidationError") {
       next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
-    } else if(err.name = 'NotFoundError') {
+    } else if(err.name === 'NotFoundError') {
       next(new NotFoundError('Передан несуществующий _id карточки.'))
-    } else if (err.name == "InternalServerError") {
+    } else if (err.name === "InternalServerError") {
       next(new InternalServerError('Ошибка по умолчанию'));
     } else {
       next(err);
@@ -73,7 +73,7 @@ module.exports.putLikes= (req, res) => {
 };
 
 // DELETE /cards/:cardId/likes — убрать лайк с карточки
-module.exports.deleteLikes= (req, res) => {
+module.exports.deleteLikes= (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
@@ -81,11 +81,11 @@ module.exports.deleteLikes= (req, res) => {
   )
   .then(cards => res.send({ data: cards }))
   .catch((err) => {
-    if (err.name == "BadRequestError") {
+    if (err.name === "ValidationError") {
       next(new BadRequestError('Переданы некорректные данные для снятии лайка.'));
-    } else if(err.name = 'NotFoundError') {
+    } else if(err.name == 'NotFoundError') {
       next(new NotFoundError('Передан несуществующий _id карточки.'))
-    } else if (err.name == "InternalServerError") {
+    } else if (err.name === "InternalServerError") {
       next(new InternalServerError('Ошибка по умолчанию'));
     } else {
       next(err);

@@ -12,8 +12,9 @@ module.exports.getUsers = (req, res) => {
   })
 };
 
+
 //POST /users — создаёт пользователя
-module.exports.postUsers = (req, res) => {
+module.exports.postUsers = (req, res, next) => {
   const {name,about,avatar, } = req.body // получим из объекта запроса данные
   User.create({name,about,avatar})
   .then(user => res.send({
@@ -22,9 +23,9 @@ module.exports.postUsers = (req, res) => {
     avatar: user.avatar,
     _id: user._id}))
   .catch((err) => {
-    if (err.name == "BadRequestError") {
+    if (err.name === "ValidationError") {
       next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-    } else if (err.name == "InternalServerError") {
+    } else if (err.name === "InternalServerError") {
       next(new InternalServerError('Ошибка по умолчанию'));
     } else {
       next(err);
@@ -33,13 +34,13 @@ module.exports.postUsers = (req, res) => {
 };
 
 //GET /users/:userId - возвращает пользователя по _id
-module.exports.findUsersById = (req, res) => {
+module.exports.findUsersById = (req, res, next) => {
   User.findById(req.params.id)
     .then(user => res.send(user))
     .catch((err)=> {
-      if(err.name = 'NotFoundError') {
+      if(err.name === 'NotFoundError') {
         next(new NotFoundError('Пользователь по указанному _id не найден'))
-      } else if (err.name == "InternalServerError") {
+      } else if (err.name === "InternalServerError") {
         next(new InternalServerError('Ошибка по умолчанию'));
       } else {
         next(err);
@@ -48,7 +49,7 @@ module.exports.findUsersById = (req, res) => {
 };
 
 // PATCH /users/me — обновляет профиль
-module.exports.patchUsers = (req, res) => {
+module.exports.patchUsers = (req, res, next) => {
   if (!users[req.user._id]) {
     res.send(`Такого пользователя не существует`);
     return;
@@ -57,11 +58,11 @@ module.exports.patchUsers = (req, res) => {
   User.findByIdAndUpdate(req.user._id, {name, about}, {new: true})
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name == "BadRequestError") {
+      if (err.name === "ValidationError") {
         next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-      } else if(err.name = 'NotFoundError') {
+      } else if(err.name === 'NotFoundError') {
         next(new NotFoundError('Пользователь по указанному _id не найден'))
-      } else if (err.name == "InternalServerError") {
+      } else if (err.name === "InternalServerError") {
         next(new InternalServerError('Ошибка по умолчанию'));
       } else {
         next(err);
@@ -70,16 +71,16 @@ module.exports.patchUsers = (req, res) => {
 };
 
 // PATCH /users/me/avatar — обновляет аватар
-module.exports.patchUsersAvatar = (req, res) => {
+module.exports.patchUsersAvatar = (req, res, next) => {
   const {avatar} = req.body
   User.findByIdAndUpdate(req.user._id, {avatar}, {new: true})
   .then((user) => res.send(user))
   .catch((err) => {
-    if (err.name == "BadRequestError") {
+    if (err.name === "ValidationError") {
       next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-    } else if(err.name = 'NotFoundError') {
+    } else if(err.name === 'NotFoundError') {
       next(new NotFoundError('Пользователь по указанному _id не найден'))
-    } else if (err.name == "InternalServerError") {
+    } else if (err.name === "InternalServerError") {
       next(new InternalServerError('Ошибка по умолчанию'));
     } else {
       next(err);
