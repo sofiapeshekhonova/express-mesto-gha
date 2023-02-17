@@ -15,11 +15,12 @@ module.exports.getUsers = (req, res) => {
 //POST /users — создаёт пользователя
 module.exports.postUsers = (req, res) => {
   const {name,about,avatar} = req.body // получим из объекта запроса данные
-  User.create({name,about,avatar})
+  User.create({name,about,avatar}, req.user._id)
   .then(user => res.send({
     name: user.name,
     about: user.about,
-    avatar: user.avatar, }))
+    avatar: user.avatar,
+    _id: req.user._id }))
   .catch((err) => {
     if (err.name == "BadRequestError") {
       next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
