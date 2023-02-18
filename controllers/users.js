@@ -40,8 +40,8 @@ module.exports.findUsersById = (req, res, next) => {
     .then((user) => {
       if (!user) {
         //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
-        //throw res.status(404).send({ message: 'Передан несуществующий в БД id' })
-        {throw new NotFoundError('извини, Я потерялся')}
+        throw res.status(404).send({ message: 'Передан несуществующий в БД id' })
+        //{throw new NotFoundError('извини, Я потерялся')}
       }
       return res.send({ data: user });
     })
@@ -58,38 +58,49 @@ module.exports.findUsersById = (req, res, next) => {
 
 // PATCH /users/me — обновляет профиль
 module.exports.patchUsers = (req, res, next) => {
-  if (!users[req.user._id]) {
-    res.send(`Такого пользователя не существует`);
-    return;
-  }
+
+  // if (!users[req.user._id]) {
+  //   res.send(`Такого пользователя не существует`);
+  //   return;
+  // }
   const {name,about} = req.body
   User.findByIdAndUpdate(req.user._id, {name, about}, {new: true})
-    .then((user) => res.send(user))
-    .catch((err) => {
-      // if (err.name === "ValidationError") {
-      //   next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-      // } else if(err.name === 'NotFoundError') {
-      //   next(new NotFoundError('Пользователь по указанному _id не найден'))
-      // } else if (err.name === "InternalServerError") {
-      //   next(new InternalServerError('Ошибка по умолчанию'));
-      // } else {
-      //   next(err);
-      // }
-    });
+  .then((user) => {
+    if (!user) {
+      //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
+      throw res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
+    }
+  })
+  .catch((err) => {
+    if (err.name === "ValidationError") {
+      return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
+     // next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+    } else if (err.name === "InternalServerError") {
+      return res.status(500).send({ message: 'Ошибка по умолчанию' })
+      //next(new InternalServerError('Ошибка по умолчанию'));
+    } else {
+      next(err);
+    }
+  });
 };
 
 // PATCH /users/me/avatar — обновляет аватар
 module.exports.patchUsersAvatar = (req, res, next) => {
   const {avatar} = req.body
   User.findByIdAndUpdate(req.user._id, {avatar}, {new: true})
-  .then((user) => res.send(user))
+  .then((user) => {
+    if (!user) {
+      //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
+      throw res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
+    }
+  })
   .catch((err) => {
     if (err.name === "ValidationError") {
-      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-    } else if(err.name === 'NotFoundError') {
-      next(new NotFoundError('Пользователь по указанному _id не найден'))
+      return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
+     // next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     } else if (err.name === "InternalServerError") {
-      next(new InternalServerError('Ошибка по умолчанию'));
+      return res.status(500).send({ message: 'Ошибка по умолчанию' })
+      //next(new InternalServerError('Ошибка по умолчанию'));
     } else {
       next(err);
     }
