@@ -24,12 +24,5 @@ app.use(cors());
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
-app.use('/', routes, (req, res, next) => {
-  req.user = {
-    _id: '63ef1ba9f92d535c71085ff3'
-  };
-
-  next();
-})
 
 app.listen(PORT);
