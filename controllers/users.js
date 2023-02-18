@@ -66,7 +66,7 @@ module.exports.patchUsers = (req, res, next) => {
   const {name,about} = req.body
   User.findByIdAndUpdate(req.user._id, {name, about}, {new: true})
   .then((user) => {
-    if (!user) {
+    if (!user[req.user._id]) {
       //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
       throw res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
     }
@@ -83,7 +83,7 @@ module.exports.patchUsers = (req, res, next) => {
     }
   });
 };
-
+//http://localhost:3000/users/63ef1ba9f92d535c71085ff3/avatar
 // PATCH /users/me/avatar — обновляет аватар
 module.exports.patchUsersAvatar = (req, res, next) => {
   const {avatar} = req.body
