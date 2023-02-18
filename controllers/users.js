@@ -2,6 +2,7 @@ const User = require('../models/user');
 // const BadRequestError = require('../errors/BadRequestError')
 // const InternalServerError = require('../errors/InternalServerError')
 // const NotFoundError = require('../errors/NotFoundError')
+const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVERE_ERROR } = require('../errors/errors_constants');
 
 // GET /users — возвращает всех пользователей
 module.exports.getUsers = (req, res) => {
@@ -24,13 +25,14 @@ module.exports.postUsers = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
       // next(new BadRequestError('Переданы некорректные данные при создании пользователя' ));
       } if (err.name === 'InternalServerError') {
-        return res.status(500).send({ message: 'Ошибка по умолчанию' });
+        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
       // next(new InternalServerError('Ошибка по умолчанию'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
@@ -40,18 +42,19 @@ module.exports.findUsersById = (req, res, next) => {
     .then((user) => {
       if (!user) {
         // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
-        throw res.status(404).send({ message: 'Передан несуществующий в БД id' });
+        throw res.status(NOT_FOUND).send({ message: 'Передан несуществующий в БД id' });
         // {throw new NotFoundError('извини, Я потерялся')}
       }
       return res.send({ data: user });
     })
-    // .catch(() => res.status(400).send({ message: 'Переданы некорректные данные' }));
+    // .catch(() => res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' }));
     .catch((err) => {
       if (err.name === 'CastError') {
         // next (new BadRequestError('Получение пользователя с некорректным id'))
-        return res.status(400).send({ message: 'Передан некорректный id' });
+        next(res.status(BAD_REQUEST).send({ message: 'Передан некорректный id' }));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
@@ -62,19 +65,20 @@ module.exports.updateUser = (req, res, next) => {
     .then((user) => {
       if (!user) {
         // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
-        throw res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+        throw res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
       }
       return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
       // next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
       } if (err.name === 'InternalServerError') {
-        return res.status(500).send({ message: 'Ошибка по умолчанию' });
+        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
         // next(new InternalServerError('Ошибка по умолчанию'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
@@ -85,18 +89,19 @@ module.exports.patchUsersAvatar = (req, res, next) => {
     .then((user) => {
       if (!user) {
         // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
-        throw res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+        throw res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
       }
       return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
       // next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
       } if (err.name === 'InternalServerError') {
-        return res.status(500).send({ message: 'Ошибка по умолчанию' });
+        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
         // next(new InternalServerError('Ошибка по умолчанию'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };

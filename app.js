@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const usersRoutes = require('./routes/users');
 
 const cardsRoutes = require('./routes/cards');
+const NOT_FOUND = require('./errors/errors_constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -38,7 +39,7 @@ app.use(cardsRoutes);
 
 app.use(
   (req, res) => {
-    res.status(404).send({ message: 'Неправильный путь' });
+    res.status(NOT_FOUND).send({ message: 'Неправильный путь' });
   },
 );
 

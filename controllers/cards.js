@@ -2,13 +2,14 @@ const Card = require('../models/card');
 // const BadRequestError = require('../errors/BadRequestError');
 // const InternalServerError = require('../errors/InternalServerError');
 // const NotFoundError = require('../errors/NotFoundError');
+const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVERE_ERROR } = require('../errors/errors_constants');
 
 // GET /cards — возвращает все карточки
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => {
       if (!cards) {
-        throw res.status(404).send({ message: 'Карточки не созданы' });
+        throw res.status(NOT_FOUND).send({ message: 'Карточки не созданы' });
       }
       return res.send(cards);
     })
@@ -32,14 +33,15 @@ module.exports.createCard = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
+        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки' }));
         // next(new BadRequestError('Переданы некорректные данные при создании карточки'));
       }
       if (err.name === 'InternalServerError') {
-        return res.status(500).send({ message: 'Ошибка по умолчанию' });
+        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
       //   // next(new InternalServerError('Ошибка по умолчанию'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
@@ -49,7 +51,7 @@ module.exports.deleteCards = (req, res, next) => {
     .then((card) => {
       if (!card) {
       // throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
-        throw res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
       }
       return card.remove()
         .then(() => res.send({ data: card }));
@@ -57,10 +59,11 @@ module.exports.deleteCards = (req, res, next) => {
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Передан некорректный id' });
+        next(res.status(BAD_REQUEST).send({ message: 'Передан некорректный id' }));
       // next(new NotFoundError('Карточка с указанным _id не найдена.'))
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
@@ -73,19 +76,20 @@ module.exports.putLikes = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
       }
       return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка.' });
+        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка.' }));
       // next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
       } if (err.name === 'InternalServerError') {
-        return res.status(500).send({ message: 'Ошибка по умолчанию' });
+        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
       // next(new InternalServerError('Ошибка по умолчанию'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
@@ -101,18 +105,19 @@ module.exports.deleteLikes = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
       }
       return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка.' });
+        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка.' }));
         // next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
       } if (err.name === 'InternalServerError') {
-        return res.status(500).send({ message: 'Ошибка по умолчанию' });
+        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
         // next(new InternalServerError('Ошибка по умолчанию'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
