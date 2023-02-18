@@ -22,9 +22,6 @@ module.exports.getCards = (req, res) => {
 
 //POST /cards — создаёт карточку
 module.exports.createCard = (req, res, next) => {
-  req.user = {
-    _id: '63ef1ba9f92d535c71085ff3' // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
 
   const { name, link } = req.body;
   const owner = req.user._id;
@@ -52,7 +49,7 @@ module.exports.createCard = (req, res, next) => {
 
 //DELETE /cards/:cardId — удаляет карточку по идентификатору
 module.exports.deleteCards= (req, res, next) => {
-  Card.findById(req.params.id)
+  Card.findById(req.params.cardId)
   .then((card) => {
     if (!card) {
       //throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
@@ -100,6 +97,9 @@ module.exports.putLikes= (req, res, next) => {
 
 // DELETE /cards/:cardId/likes — убрать лайк с карточки
 module.exports.deleteLikes= (req, res, next) => {
+  req.user = {
+    _id: '63ef1ba9f92d535c71085ff3' // вставьте сюда _id созданного в предыдущем пункте пользователя
+  };
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива

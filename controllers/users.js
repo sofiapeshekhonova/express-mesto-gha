@@ -84,7 +84,6 @@ module.exports.updateUser = (req, res, next) => {
     }
   });
 };
-//http://localhost:3000/users/63ef1ba9f92d535c71085ff3/avatar
 // PATCH /users/me/avatar — обновляет аватар
 module.exports.patchUsersAvatar = (req, res, next) => {
   const {avatar} = req.body

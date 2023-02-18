@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-
+const usersRoutes = require('./routes/users');
+const cardsRoutes = require('./routes/cards')
 const { PORT = 3000 } = process.env;
 const app = express();
 const routes = require('./routes/users.js');
@@ -21,8 +22,23 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-app.use('/', require('./routes/users'));
-app.use('/', require('./routes/cards'));
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '63ef1ba9f92d535c71085ff3' // вставьте сюда _id созданного в предыдущем пункте пользователя
+  };
+
+  next();
+});
+
+app.use(usersRoutes);
+app.use(cardsRoutes);
+
+
+
+
+module.exports.createCard = (req, res) => {
+  console.log(req.user._id); // _id станет доступен
+};
 
 app.listen(PORT);
