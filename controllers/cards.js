@@ -8,8 +8,14 @@ const NotFoundError = require('../errors/NotFoundError');
 // };
 
 //GET /cards — возвращает все карточки
-module.exports.getCards = (req, res, next) => {
+module.exports.getCards = (req, res) => {
   Card.find({})
+  // .then((cards) => {
+  //   // if (!cards) {
+  //   //   throw res.status(404).send({ message: 'Карточки не созданы' })
+  //   // }
+  //   return res.send(cards);
+  // })
   .then(cards => res.send({ data: cards }))
   .catch((err) => {
     console.log(`Произошла неизвестная ошибка ${err.name}: ${err.message}`);
@@ -17,21 +23,45 @@ module.exports.getCards = (req, res, next) => {
 };
 
 //POST /cards — создаёт карточку
+// module.exports.postCards = (req, res, next) => {
+//   const {name,link} = req.body
+//   Card.create({ name, link, owner: req.user._id })
+//   .then(card => res.send({
+//      data: card
+//     // name: card.name,
+//     // link: card.link,
+//     // _id: card.id,
+//     // // owner: {
+//     // //   _id: owner._id
+//     // // }
+//   }))
+//   .catch((err) => {
+//     if (err.name === "ValidationError") {
+//       return res.status(400).send({ message: 'Переданы некорректные данные при создании карточк' })
+//       //next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+//     } else if (err.name === "InternalServerError") {
+//       return res.status(500).send({ message: 'Ошибка по умолчанию' })
+//       //next(new InternalServerError('Ошибка по умолчанию'));
+//     } else {
+//       next(err);
+//     }
+//   });
+// };
+
 module.exports.postCards = (req, res, next) => {
-  const {name,link} = req.body
-  Card.create({ name, link, owner: req.user._id })
-  .then(cards => res.send({ data: cards }))
-  .catch((err) => {
-    if (err.name === "ValidationError") {
-      return res.status(400).send({ message: 'Переданы некорректные данные при создании карточк' })
-      //next(new BadRequestError('Переданы некорректные данные при создании карточки'));
-    } else if (err.name === "InternalServerError") {
-      return res.status(500).send({ message: 'Ошибка по умолчанию' })
-      //next(new InternalServerError('Ошибка по умолчанию'));
-    } else {
-      next(err);
-    }
-  });
+  const { name, link } = req.body;
+  const ownerId = req.user._id;
+  Card.create({ name, link, owner: ownerId })
+    .then((card) => {
+      return res.send(card);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 //DELETE /cards/:cardId — удаляет карточку по идентификатору
