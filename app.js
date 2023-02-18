@@ -18,10 +18,6 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb')
   console.error(err);
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
-
 
 app.use((req, res, next) => {
   req.user = {
@@ -33,7 +29,14 @@ app.use((req, res, next) => {
 
 app.use(usersRoutes);
 app.use(cardsRoutes);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  return res.status(404).send({ message: 'Неправильный путь' })
+});
+
+app.use(cors());
 
 
 
