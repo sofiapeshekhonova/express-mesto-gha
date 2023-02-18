@@ -57,7 +57,7 @@ module.exports.findUsersById = (req, res, next) => {
 };
 
 // PATCH /users/me — обновляет профиль
-module.exports.patchUsers = (req, res, next) => {
+module.exports.updateUser = (req, res, next) => {
 
   // if (!users[req.user._id]) {
   //   res.send(`Такого пользователя не существует`);
@@ -66,10 +66,11 @@ module.exports.patchUsers = (req, res, next) => {
   const {name,about} = req.body
   User.findByIdAndUpdate(req.user._id, {name, about}, {new: true})
   .then((user) => {
-    if (!user[req.user._id]) {
+    if (!user) {
       //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
       throw res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
     }
+    return res.send({ data: user });
   })
   .catch((err) => {
     if (err.name === "ValidationError") {
@@ -93,6 +94,7 @@ module.exports.patchUsersAvatar = (req, res, next) => {
       //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
       throw res.status(404).send({ message: 'Пользователь по указанному _id не найден' })
     }
+    return res.send({ data: user });
   })
   .catch((err) => {
     if (err.name === "ValidationError") {
