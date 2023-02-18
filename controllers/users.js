@@ -58,13 +58,8 @@ module.exports.findUsersById = (req, res, next) => {
 
 // PATCH /users/me — обновляет профиль
 module.exports.updateUser = (req, res, next) => {
-
-  // if (!users[req.user._id]) {
-  //   res.send(`Такого пользователя не существует`);
-  //   return;
-  // }
   const {name,about} = req.body
-  User.findByIdAndUpdate(req.user._id, {name, about}, {new: true})
+  User.findByIdAndUpdate(req.user._id, {name, about}, {new: true, runValidators: true})
   .then((user) => {
     if (!user) {
       //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
@@ -87,7 +82,7 @@ module.exports.updateUser = (req, res, next) => {
 // PATCH /users/me/avatar — обновляет аватар
 module.exports.patchUsersAvatar = (req, res, next) => {
   const {avatar} = req.body
-  User.findByIdAndUpdate(req.user._id, {avatar}, {new: true})
+  User.findByIdAndUpdate(req.user._id, {avatar}, {new: true, runValidators: true})
   .then((user) => {
     if (!user) {
       //throw next(new NotFoundError('пользователя с несуществующим в БД id'));
