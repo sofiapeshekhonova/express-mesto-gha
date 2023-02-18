@@ -4,9 +4,9 @@ const usersRoutes = require('./routes/users');
 const cardsRoutes = require('./routes/cards')
 const { PORT = 3000 } = process.env;
 const app = express();
-const routes = require('./routes/users.js');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const {not_found} = require('./errors/errors_constants');
 
 mongoose.set('strictQuery', true);
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb')
@@ -36,11 +36,7 @@ app.use(cardsRoutes);
 
 
 app.use((req, res, next) => {
-  return res.status(404).send({ message: 'Неправильный путь' })
+  return res.status(not_found).send({ message: 'Неправильный путь' })
 });
-
-// module.exports.createCard = (req, res) => {
-//   console.log(req.user._id); // _id станет доступен
-// };
 
 app.listen(PORT);

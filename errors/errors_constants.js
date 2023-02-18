@@ -5,5 +5,5 @@ const internal_servere_error = 500;
 module.exports = {
   bad_request,
   not_found,
-  internal_servere_error
+  internal_servere_error,
 };
