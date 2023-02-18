@@ -2,13 +2,13 @@ const express = require('express');
 
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const usersRoutes = require('./routes/users');
 
 const cardsRoutes = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
 const app = express();
-// const bodyParser = require('body-parser');
 
 mongoose.set('strictQuery', true);
 mongoose
@@ -21,8 +21,8 @@ mongoose
     console.error(err);
   });
 
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use((req, res, next) => {
