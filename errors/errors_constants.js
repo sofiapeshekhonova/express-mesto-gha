@@ -1,9 +1,9 @@
-const bad_request = 400;
-const not_found = 404;
-const internal_servere_error = 500;
+const BAD_REQUEST = 400;
+const NOT_FOUND = 404;
+const INTERNAL_SERVERE_ERROR = 500;
 
 module.exports = {
-  bad_request,
-  not_found,
-  internal_servere_error
+  BAD_REQUEST,
+  NOT_FOUND,
+  INTERNAL_SERVERE_ERROR,
 };
