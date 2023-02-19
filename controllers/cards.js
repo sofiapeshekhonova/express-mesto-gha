@@ -5,7 +5,7 @@ const Card = require('../models/card');
 const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVERE_ERROR } = require('../errors/errors_constants');
 
 // GET /cards — возвращает все карточки
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       if (!cards) {
@@ -13,9 +13,8 @@ module.exports.getCards = (req, res) => {
       }
       return res.send(cards);
     })
-    //  .then(cards => res.send({ data: cards }))
     .catch((err) => {
-      console.log(`Произошла неизвестная ошибка ${err.name}: ${err.message}`);
+      next((`Произошла неизвестная ошибка ${err.name}: ${err.message}`));
     });
 };
 
@@ -48,13 +47,12 @@ module.exports.createCard = (req, res, next) => {
 //  DELETE /cards/:cardId — удаляет карточку по идентификатору
 module.exports.deleteCards = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .then((card) => {
-      if (!card) {
+    .orFail(() => {
       // throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
-        throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-      }
-      return card.remove()
-        .then(() => res.send({ data: card }));
+      throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+    })
+    .then((card) => {
+      card.remove().then(() => res.send({ data: card }));
     })
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
@@ -74,17 +72,17 @@ module.exports.putLikes = (req, res, next) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
+    .orFail(() => {
+      throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+    })
     .then((card) => {
-      if (!card) {
-        throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-      }
-      return res.send(card);
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка.' }));
       // next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
-      } if (err.name === 'InternalServerError') {
+      } else if (err.name === 'InternalServerError') {
         next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
       // next(new InternalServerError('Ошибка по умолчанию'));
       } else {
@@ -95,25 +93,22 @@ module.exports.putLikes = (req, res, next) => {
 
 // DELETE /cards/:cardId/likes — убрать лайк с карточки
 module.exports.deleteLikes = (req, res, next) => {
-  req.user = {
-    _id: '63ef1ba9f92d535c71085ff3',
-  };
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
+    .orFail(() => {
+      throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+    })
     .then((card) => {
-      if (!card) {
-        throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-      }
-      return res.send(card);
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка.' }));
         // next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
-      } if (err.name === 'InternalServerError') {
+      } else if (err.name === 'InternalServerError') {
         next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
         // next(new InternalServerError('Ошибка по умолчанию'));
       } else {
