@@ -39,13 +39,14 @@ module.exports.postUsers = (req, res, next) => {
 // GET /users/:userId - возвращает пользователя по _id
 module.exports.findUsersById = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(() => {
-      // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
-      throw res.status(NOT_FOUND).send({ message: 'Передан несуществующий в БД id' });
-    })
     .then((user) => {
-      res.send({ data: user });
+      if (!user) {
+        // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
+        return res.status(NOT_FOUND).send({ message: 'Передан несуществующий в БД id' });
+      }
+      return res.send({ data: user });
     })
+    // .catch(() => res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' }));
     .catch((err) => {
       if (err.name === 'CastError') {
         // next (new BadRequestError('Получение пользователя с некорректным id'))
@@ -60,12 +61,12 @@ module.exports.findUsersById = (req, res, next) => {
 module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(() => {
-      // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
-      throw res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
-    })
     .then((user) => {
-      res.send({ data: user });
+      if (!user) {
+        // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
+        return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -84,12 +85,12 @@ module.exports.updateUser = (req, res, next) => {
 module.exports.patchUsersAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(() => {
-      // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
-      throw res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
-    })
     .then((user) => {
-      res.send({ data: user });
+      if (!user) {
+        // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
+        return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

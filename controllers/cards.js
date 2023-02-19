@@ -9,7 +9,7 @@ module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       if (!cards) {
-        throw res.status(NOT_FOUND).send({ message: 'Карточки не созданы' });
+        return res.status(NOT_FOUND).send({ message: 'Карточки не созданы' });
       }
       return res.send(cards);
     })
@@ -34,10 +34,9 @@ module.exports.createCard = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки' }));
         // next(new BadRequestError('Переданы некорректные данные при создании карточки'));
-      }
-      if (err.name === 'InternalServerError') {
+      } else if (err.name === 'InternalServerError') {
         next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
-      //   // next(new InternalServerError('Ошибка по умолчанию'));
+      // next(new InternalServerError('Ошибка по умолчанию'));
       } else {
         next(err);
       }
@@ -47,12 +46,13 @@ module.exports.createCard = (req, res, next) => {
 //  DELETE /cards/:cardId — удаляет карточку по идентификатору
 module.exports.deleteCards = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail(() => {
-      // throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
-      throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-    })
     .then((card) => {
-      card.remove().then(() => res.send({ data: card }));
+      if (!card) {
+      // throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
+        return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+      }
+      return card.remove()
+        .then(() => res.send({ data: card }));
     })
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
@@ -72,11 +72,11 @@ module.exports.putLikes = (req, res, next) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .orFail(() => {
-      throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-    })
     .then((card) => {
-      res.send(card);
+      if (!card) {
+        return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+      }
+      return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -98,11 +98,11 @@ module.exports.deleteLikes = (req, res, next) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .orFail(() => {
-      throw res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-    })
     .then((card) => {
-      res.send(card);
+      if (!card) {
+        return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+      }
+      return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
