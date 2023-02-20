@@ -9,7 +9,11 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => {
-      next((`Произошла неизвестная ошибка ${err.name}: ${err.message}`));
+      if (err.name === 'InternalServerError') {
+        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
+      } else {
+        next(err);
+      }
     });
 };
 

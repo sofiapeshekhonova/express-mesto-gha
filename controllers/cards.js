@@ -14,7 +14,11 @@ module.exports.getCards = (req, res, next) => {
       return res.send(cards);
     })
     .catch((err) => {
-      next((`Произошла неизвестная ошибка ${err.name}: ${err.message}`));
+      if (err.name === 'InternalServerError') {
+        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
+      } else {
+        next(err);
+      }
     });
 };
 
