@@ -26,16 +26,13 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then(() => res.status(200).send({
-      message: 'Пользователь зарегестрирован',
-    }))
+    .then(() => res.status(200).send({ message: 'Пользователь зарегестрирован' }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
-      // next(new BadRequestError('Переданы некорректные данные' ));
+      if (err.code === 1000) {
+        next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
       } else if (err.name === 'InternalServerError') {
         next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
-      // next(new InternalServerError('Ошибка по умолчанию'));
+        // next(new InternalServerError('Ошибка по умолчанию'));
       } else {
         next(err);
       }
@@ -48,14 +45,28 @@ module.exports.login = (req, res) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      // создадим токен
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.send({ login: token });
+      const token = jwt.sign({ _id: user._id }, 'faWQiOiI2NDA1ZWI5ZDAyNGRmMTI3ZThhNGFkZTQi', { expiresIn: '7d' });
+      res.status(200).send({ _id: token, message: 'Пользователь зарегестрирован' });
     })
     .catch((err) => {
       res
         .status(401)
         .send({ message: err.message });
+    });
+};
+
+//  get users/me
+module.exports.getUser = (req, res, next) => {
+  console.log(req.user);
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -69,21 +80,6 @@ module.exports.getUsers = (req, res, next) => {
       } else {
         next(err);
       }
-    });
-};
-
-//  get users/me
-module.exports.getUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
-        return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
-      }
-      return res.send({ data: user });
-    })
-    .catch((err) => {
-      next(err);
     });
 };
 
@@ -122,7 +118,7 @@ module.exports.updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
-      // next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        // next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
       } else if (err.name === 'InternalServerError') {
         next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
         // next(new InternalServerError('Ошибка по умолчанию'));
@@ -146,7 +142,7 @@ module.exports.patchUsersAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
-      // next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        // next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
       } else if (err.name === 'InternalServerError') {
         next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
         // next(new InternalServerError('Ошибка по умолчанию'));
