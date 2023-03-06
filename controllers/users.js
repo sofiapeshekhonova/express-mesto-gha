@@ -32,35 +32,30 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => {
       if (user) {
         next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
-      } bcrypt.hash(password, 10) // хешируем пароль
-        .then((hash) => User.create({
-          name,
-          about,
-          avatar,
-          email,
-          password: hash,
-          _id: user._id,
-        }))
-        .then(() => res.status(201).send({
-          _id: user._id,
-          email: user.email,
-        }))
-        .catch((error) => {
-          if (error.name === 'ValidationError') {
-            next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
-          } next(error);
-        });
+      }
+      return bcrypt.hash(password, 10);
+    })
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => res.send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+      email: user.email,
+    }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
+      } else {
+        next(err);
+      }
     });
-    // .catch((err) => {
-    //   if (err.code === 1000) {
-    //     next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
-    //   } else if (err.name === 'InternalServerError') {
-    //     next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
-    //     // next(new InternalServerError('Ошибка по умолчанию'));
-    //   } else {
-    //     next(err);
-    //   }
-    // });
 };
 
 // post/signin
