@@ -1,19 +1,41 @@
+const { celebrate, Joi } = require('celebrate');
 const express = require('express');
 
 const router = express.Router();
 
 const {
   getUsers,
-  postUsers,
   findUsersById,
   updateUser,
   patchUsersAvatar,
+  getUser,
 } = require('../controllers/users');
 
 router.get('/users', getUsers);
-router.post('/users', postUsers);
-router.get('/users/:id', findUsersById);
-router.patch('/users/me', updateUser);
-router.patch('/users/me/avatar', patchUsersAvatar);
+router.get('/users/:id', celebrate({
+  params: Joi.object().keys({
+    _id: Joi.string().length(24).hex(),
+  }),
+}), findUsersById);
+
+router.get('/users/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
+  }),
+}), getUser); // запрос на получение данных данного пользователя
+
+router.patch('/users/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
+  }),
+}), updateUser);
+
+router.patch('/users/me/avatar', celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().required().regex(/(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/),
+  }),
+}), patchUsersAvatar);
 
 module.exports = router;
