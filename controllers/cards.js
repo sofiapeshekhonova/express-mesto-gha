@@ -52,7 +52,6 @@ module.exports.deleteCards = (req, res, next) => {
   const owner = req.user._id;
   Card.findById(req.params.cardId)
     .then((card) => {
-      console.log(card.owner.valueOf())
       if (!card) {
       // throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
         return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
@@ -65,7 +64,7 @@ module.exports.deleteCards = (req, res, next) => {
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(res.status(BAD_REQUEST).send({ message: 'Передан некорректный id' }));
+        next(res.status(404).send({ message: 'Передан некорректный id' }));
       // next(new NotFoundError('Карточка с указанным _id не найдена.'))
       } else {
         next(err);
