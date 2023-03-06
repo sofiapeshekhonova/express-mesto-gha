@@ -15,7 +15,7 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        next(res.status(BAD_REQUEST).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
+        next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
       }
       return bcrypt.hash(password, 10);
     })
