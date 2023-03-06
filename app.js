@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const usersRoutes = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -62,5 +62,6 @@ app.use(
     res.status(NOT_FOUND).send({ message: 'Неправильный путь' });
   },
 );
+app.use(errors());
 
 app.listen(PORT);
