@@ -1,21 +1,20 @@
 const Card = require('../models/card');
-// const BadRequestError = require('../errors/BadRequestError');
-// const InternalServerError = require('../errors/InternalServerError');
-// const NotFoundError = require('../errors/NotFoundError');
-const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVERE_ERROR } = require('../errors/errors_constants');
+const BadRequestError = require('../errors/BadRequestError');
+const InternalServerError = require('../errors/InternalServerError');
+const NotFoundError = require('../errors/NotFoundError');
 
 // GET /cards — возвращает все карточки
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       if (!cards) {
-        return res.status(NOT_FOUND).send({ message: 'Карточки не созданы' });
+        throw next(new NotFoundError('Пользователь по указанному _id не найден'));
       }
       return res.send(cards);
     })
     .catch((err) => {
       if (err.name === 'InternalServerError') {
-        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
+        throw next(new InternalServerError('Ошибка по умолчанию'));
       } else {
         next(err);
       }
@@ -36,11 +35,9 @@ module.exports.createCard = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки' }));
-        // next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+        throw next(new BadRequestError('Переданы некорректные данные при создании карточки'));
       } else if (err.name === 'InternalServerError') {
-        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
-      // next(new InternalServerError('Ошибка по умолчанию'));
+        throw next(new InternalServerError('Ошибка по умолчанию'));
       } else {
         next(err);
       }
@@ -49,11 +46,13 @@ module.exports.createCard = (req, res, next) => {
 
 //  DELETE /cards/:cardId — удаляет карточку по идентификатору
 module.exports.deleteCards = (req, res, next) => {
+  const owner = req.user._id;
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-      // throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
-        return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
+      } if (card.owner.valueOf() !== owner) {
+        return res.status(403).send({ message: 'Чужая карточка' });
       }
       return card.remove()
         .then(() => res.send({ data: card }));
@@ -61,8 +60,7 @@ module.exports.deleteCards = (req, res, next) => {
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(res.status(BAD_REQUEST).send({ message: 'Передан некорректный id' }));
-      // next(new NotFoundError('Карточка с указанным _id не найдена.'))
+        throw next(new NotFoundError('Передан некорректный id'));
       } else {
         next(err);
       }
@@ -78,17 +76,15 @@ module.exports.putLikes = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
       }
       return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка.' }));
-      // next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
+        throw next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
       } else if (err.name === 'InternalServerError') {
-        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
-      // next(new InternalServerError('Ошибка по умолчанию'));
+        throw next(new InternalServerError('Ошибка по умолчанию'));
       } else {
         next(err);
       }
@@ -104,17 +100,15 @@ module.exports.deleteLikes = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
       }
       return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка.' }));
-        // next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
+        throw next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
       } else if (err.name === 'InternalServerError') {
-        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
-        // next(new InternalServerError('Ошибка по умолчанию'));
+        throw next(new InternalServerError('Ошибка по умолчанию'));
       } else {
         next(err);
       }
