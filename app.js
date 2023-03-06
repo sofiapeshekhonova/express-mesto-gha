@@ -8,6 +8,7 @@ const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const cardsRoutes = require('./routes/cards');
 const { NOT_FOUND } = require('./errors/errors_constants');
+const INTERNAL_SERVER_ERROR = require('./errors/errors_constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -25,14 +26,6 @@ mongoose
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-
-// app.use((req, res, next) => {
-//   req.user = {
-// id: '63ef1ba9f92d535c71085ff3', // вставьте сюда _id созданного в предыдущем пункте пользователя
-//   };
-
-//   next();
-// });
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -64,4 +57,12 @@ app.use(
 );
 app.use(errors());
 
+app.use((err, req, res, next) => {
+  if (err.statusCode) {
+    res.status(err.statusCode).send({ message: err.message });
+  } else {
+    res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
+  }
+  next();
+});
 app.listen(PORT);
