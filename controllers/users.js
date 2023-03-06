@@ -12,31 +12,55 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body; // получим из объекта запроса данные
+  // User.findOne({ email })
+  //   .then((user) => {
+  //     if (user) {
+  // next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
+  //     }
+  //     return bcrypt.hash(password, 10);
+  //   })
+  //   .then((hash) => User.create({
+  //     name,
+  //     about,
+  //     avatar,
+  //     email,
+  //     password: hash,
+  //     _id: user._id,
+  //   }))
+  //   .then(() => res.status(200).send({ message: 'Пользователь зарегестрирован' }))
   User.findOne({ email })
     .then((user) => {
       if (user) {
         next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
-      }
-      return bcrypt.hash(password, 10);
-    })
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-    .then(() => res.status(200).send({ message: 'Пользователь зарегестрирован' }))
-    .catch((err) => {
-      if (err.code === 1000) {
-        next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
-      } else if (err.name === 'InternalServerError') {
-        next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
-        // next(new InternalServerError('Ошибка по умолчанию'));
-      } else {
-        next(err);
-      }
+      } bcrypt.hash(password, 10) // хешируем пароль
+        .then((hash) => User.create({
+          name,
+          about,
+          avatar,
+          email,
+          password: hash,
+          _id: user._id,
+        }))
+        .then(() => res.status(201).send({
+          _id: user._id,
+          email: user.email,
+        }))
+        .catch((error) => {
+          if (error.name === 'ValidationError') {
+            next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
+          } next(error);
+        });
     });
+    // .catch((err) => {
+    //   if (err.code === 1000) {
+    //     next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
+    //   } else if (err.name === 'InternalServerError') {
+    //     next(res.status(INTERNAL_SERVERE_ERROR).send({ message: 'Ошибка по умолчанию' }));
+    //     // next(new InternalServerError('Ошибка по умолчанию'));
+    //   } else {
+    //     next(err);
+    //   }
+    // });
 };
 
 // post/signin
