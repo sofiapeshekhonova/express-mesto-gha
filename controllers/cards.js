@@ -49,11 +49,14 @@ module.exports.createCard = (req, res, next) => {
 
 //  DELETE /cards/:cardId — удаляет карточку по идентификатору
 module.exports.deleteCards = (req, res, next) => {
+  const owner = req.user._id;
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
       // throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
         return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+      } if (owner.toString() !== req.user._id) {
+        return res.status(403).send({ message: 'Чужая карточка' });
       }
       return card.remove()
         .then(() => res.send({ data: card }));

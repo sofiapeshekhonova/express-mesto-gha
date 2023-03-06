@@ -12,22 +12,6 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body; // получим из объекта запроса данные
-  // User.findOne({ email })
-  //   .then((user) => {
-  //     if (user) {
-  // next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
-  //     }
-  //     return bcrypt.hash(password, 10);
-  //   })
-  //   .then((hash) => User.create({
-  //     name,
-  //     about,
-  //     avatar,
-  //     email,
-  //     password: hash,
-  //     _id: user._id,
-  //   }))
-  //   .then(() => res.status(200).send({ message: 'Пользователь зарегестрирован' }))
   User.findOne({ email })
     .then((user) => {
       if (user) {
@@ -51,7 +35,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(res.status(409).send({ message: 'Пользователь с такой почтой уже зарегестрирован' }));
+        next(res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' }));
       } else {
         next(err);
       }
@@ -76,7 +60,6 @@ module.exports.login = (req, res) => {
 
 //  get users/me
 module.exports.getUser = (req, res, next) => {
-  console.log(req.user);
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
@@ -104,7 +87,9 @@ module.exports.getUsers = (req, res, next) => {
 
 // GET /users/:userId - возвращает пользователя по _id
 module.exports.findUsersById = (req, res, next) => {
-  User.findById(req.params.id)
+  const { id } = req.params;
+
+  User.findById(id)
     .then((user) => {
       if (!user) {
         // throw next(new NotFoundError('пользователя с несуществующим в БД id'));
