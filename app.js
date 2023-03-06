@@ -19,7 +19,6 @@ mongoose
     console.log('Database connected.');
   })
   .catch((err) => {
-  //  console.log('Error on database connection');
     console.error(err);
   });
 
@@ -53,10 +52,10 @@ app.post('/signin', celebrate({
 }), login);
 
 // // авторизация
-app.use(auth);
+// app.use(auth);
 
-app.use('/users', usersRoutes);
-app.use('/cards', cardsRoutes);
+app.use('/', auth, usersRoutes);
+app.use('/', auth, cardsRoutes);
 
 app.use(
   (req, res) => {

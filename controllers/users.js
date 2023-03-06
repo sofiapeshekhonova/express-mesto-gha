@@ -50,7 +50,7 @@ module.exports.login = (req, res) => {
     .then((user) => {
       // создадим токен
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.send({ message: token });
+      res.send({ login: token });
     })
     .catch((err) => {
       res
