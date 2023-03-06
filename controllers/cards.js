@@ -52,10 +52,11 @@ module.exports.deleteCards = (req, res, next) => {
   const owner = req.user._id;
   Card.findById(req.params.cardId)
     .then((card) => {
+      console.log(card.owner.valueOf())
       if (!card) {
       // throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
         return res.status(NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-      } if (owner.toString() !== req.user._id) {
+      } if (card.owner.valueOf() !== owner) {
         return res.status(403).send({ message: 'Чужая карточка' });
       }
       return card.remove()
@@ -72,6 +73,13 @@ module.exports.deleteCards = (req, res, next) => {
     });
 };
 
+// .then((card) => {
+//   if (String(card.owner) === owner) {
+//     card.remove();
+//   } else if (String(card.owner) !== owner) {
+//     throw next(new ForbiddenToDelete('Чужие карточки не могут быть удалены'));
+//   }
+// })
 // PUT /cards/:cardId/likes — поставить лайк карточке
 module.exports.putLikes = (req, res, next) => {
   Card.findByIdAndUpdate(
