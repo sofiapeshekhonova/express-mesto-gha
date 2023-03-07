@@ -7,7 +7,6 @@ const usersRoutes = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const cardsRoutes = require('./routes/cards');
-const { NOT_FOUND } = require('./errors/errors_constants');
 const INTERNAL_SERVER_ERROR = require('./errors/errors_constants');
 
 const { PORT = 3000 } = process.env;
@@ -44,17 +43,9 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-// // авторизация
-// app.use(auth);
-
 app.use('/', auth, usersRoutes);
 app.use('/', auth, cardsRoutes);
 
-app.use(
-  (req, res) => {
-    res.status(NOT_FOUND).send({ message: 'Неправильный путь' });
-  },
-);
 app.use(errors());
 
 app.use((err, req, res, next) => {
@@ -65,4 +56,5 @@ app.use((err, req, res, next) => {
   }
   next();
 });
+
 app.listen(PORT);

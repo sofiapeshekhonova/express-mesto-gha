@@ -3,6 +3,7 @@ const NOT_FOUND = 404;
 const INTERNAL_SERVERE_ERROR = 500;
 const DUPLICATE_ERROR = 409;
 const AUTHORIZED_ERROR = 401;
+const OWNER_ERROR = 403;
 
 module.exports = {
   BAD_REQUEST,
@@ -10,4 +11,5 @@ module.exports = {
   INTERNAL_SERVERE_ERROR,
   DUPLICATE_ERROR,
   AUTHORIZED_ERROR,
+  OWNER_ERROR,
 };

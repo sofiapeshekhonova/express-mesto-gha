@@ -11,7 +11,7 @@ const NotFoundError = require('../errors/NotFoundError');
 module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
-  } = req.body; // получим из объекта запроса данные
+  } = req.body;
   User.findOne({ email })
     .then((user) => {
       if (user) {
@@ -26,13 +26,7 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-      _id: user._id,
-      email: user.email,
-    }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные при создании пользователя');
@@ -52,9 +46,7 @@ module.exports.login = (req, res) => {
       res.status(200).send({ _id: token, message: 'Пользователь зарегестрирован' });
     })
     .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
+      res.status(401).send({ message: err.message });
     });
 };
 
