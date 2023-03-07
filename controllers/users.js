@@ -78,7 +78,7 @@ module.exports.getUsers = (req, res, next) => {
     .then((users) => res.send({ data: users }))
     .catch((err) => {
       if (err.name === 'InternalServerError') {
-        throw new InternalServerError('Ошибка по умолчанию');
+        throw new InternalServerError('На сервере произошла ошибка');
       } else {
         next(err);
       }
@@ -117,7 +117,7 @@ module.exports.updateUser = (req, res, next) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные при создании пользователя');
       } else if (err.name === 'InternalServerError') {
-        throw new InternalServerError('Ошибка по умолчанию');
+        throw new InternalServerError('На сервере произошла ошибка');
       } else {
         next(err);
       }
@@ -138,7 +138,7 @@ module.exports.patchUsersAvatar = (req, res, next) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные при создании пользователя');
       } else if (err.name === 'InternalServerError') {
-        throw new InternalServerError('Ошибка по умолчанию');
+        throw new InternalServerError('На сервере произошла ошибка');
       } else {
         next(err);
       }

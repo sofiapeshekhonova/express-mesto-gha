@@ -17,7 +17,7 @@ module.exports.getCards = (req, res, next) => {
     //
     .catch((err) => {
       if (err.name === 'InternalServerError') {
-        throw next(new InternalServerError('Ошибка по умолчанию'));
+        throw next(new InternalServerError('На сервере произошла ошибка'));
       } else {
         next(err);
       }
@@ -34,7 +34,7 @@ module.exports.createCard = (req, res, next) => {
       if (err.name === 'ValidationError') {
         throw next(new BadRequestError('Переданы некорректные данные при создании карточки'));
       } else if (err.name === 'InternalServerError') {
-        throw next(new InternalServerError('Ошибка по умолчанию'));
+        throw next(new InternalServerError('На сервере произошла ошибка'));
       } else {
         next(err);
       }
@@ -80,7 +80,7 @@ module.exports.putLikes = (req, res, next) => {
       if (err.name === 'CastError') {
         throw next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
       } else if (err.name === 'InternalServerError') {
-        throw next(new InternalServerError('Ошибка по умолчанию'));
+        throw next(new InternalServerError('На сервере произошла ошибка'));
       } else {
         next(err);
       }
@@ -104,7 +104,7 @@ module.exports.deleteLikes = (req, res, next) => {
       if (err.name === 'CastError') {
         throw next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
       } else if (err.name === 'InternalServerError') {
-        throw next(new InternalServerError('Ошибка по умолчанию'));
+        throw next(new InternalServerError('На сервере произошла ошибка'));
       } else {
         next(err);
       }
