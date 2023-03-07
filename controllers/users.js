@@ -11,7 +11,7 @@ const NotFoundError = require('../errors/NotFoundError');
 module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
-  } = req.body; // получим из объекта запроса данные
+  } = req.body;
   User.findOne({ email })
     .then((user) => {
       if (user) {

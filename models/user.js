@@ -6,8 +6,8 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     default: 'Жак-Ив Кусто',
-    minlength: [2, 'Must be at least 2 characters.'], // минимальная длина имени — 2 символа
-    maxlength: [30, 'Must be at less than 30 characters.'], // а максимальная — 30 символов
+    minlength: [2, 'Must be at least 2 characters.'],
+    maxlength: [30, 'Must be at less than 30 characters.'],
   },
   about: {
     type: String,
@@ -46,7 +46,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
             return Promise.reject(new Error('Неправильные почта или пароль'));
           }
 
-          return user; // теперь user доступен
+          return user;
         });
     });
 };

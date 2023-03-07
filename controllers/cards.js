@@ -2,6 +2,7 @@ const Card = require('../models/card');
 const BadRequestError = require('../errors/BadRequestError');
 const InternalServerError = require('../errors/InternalServerError');
 const NotFoundError = require('../errors/NotFoundError');
+const OwnerError = require('../errors/OwnerError');
 
 // GET /cards — возвращает все карточки
 module.exports.getCards = (req, res, next) => {
@@ -26,13 +27,7 @@ module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((card) => res.send({
-      name: card.name,
-      link: card.link,
-      owner: card.owner,
-      likes: card.likes,
-      _id: card._id,
-    }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw next(new BadRequestError('Переданы некорректные данные при создании карточки'));
@@ -52,12 +47,11 @@ module.exports.deleteCards = (req, res, next) => {
       if (!card) {
         throw next(new NotFoundError('Карточка с указанным _id не найдена.'));
       } if (card.owner.valueOf() !== owner) {
-        return res.status(403).send({ message: 'Чужая карточка' });
+        throw next(new OwnerError('Карточка с указанным _id не найдена.'));
       }
       return card.remove()
         .then(() => res.send({ data: card }));
     })
-    .then((cards) => res.send({ data: cards }))
     .catch((err) => {
       if (err.name === 'CastError') {
         throw next(new NotFoundError('Передан некорректный id'));
@@ -71,7 +65,7 @@ module.exports.deleteCards = (req, res, next) => {
 module.exports.putLikes = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .then((card) => {
@@ -95,7 +89,7 @@ module.exports.putLikes = (req, res, next) => {
 module.exports.deleteLikes = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
     .then((card) => {
