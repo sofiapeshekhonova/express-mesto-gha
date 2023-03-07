@@ -26,7 +26,13 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+      email: user.email,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные при создании пользователя');
@@ -46,7 +52,9 @@ module.exports.login = (req, res) => {
       res.status(200).send({ _id: token, message: 'Пользователь зарегестрирован' });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      res
+        .status(401)
+        .send({ message: err.message });
     });
 };
 
