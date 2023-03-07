@@ -7,12 +7,14 @@ const OwnerError = require('../errors/OwnerError');
 // GET /cards — возвращает все карточки
 module.exports.getCards = (req, res, next) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((cards) => {
       if (!cards) {
         throw next(new NotFoundError('Пользователь по указанному _id не найден'));
       }
       return res.send(cards);
     })
+    //
     .catch((err) => {
       if (err.name === 'InternalServerError') {
         throw next(new InternalServerError('Ошибка по умолчанию'));
